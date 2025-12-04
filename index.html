@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cajero – Mascota Veloz Loyalty</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      max-width: 900px;
+      width: 100%;
+      padding: 24px;
+    }
+    h1 {
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .row > div {
+      flex: 1;
+      min-width: 200px;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      background: #ff6b35;
+      color: #fff;
+      font-weight: 600;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .status.error {
+      color: #b00020;
+    }
+    .status.ok {
+      color: #135e01;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Mascota Veloz – Panel de Cajero</h1>
+    <div class="subtitle">Registrar visitas y canjear premios del 15% (máx. S/400)</div>
+
+    <!-- Registrar visita -->
+    <div class="card">
+      <h2>1. Registrar visita</h2>
+      <div class="row">
+        <div>
+          <label for="scan-qr">QR del cliente (qr_code)</label>
+          <input id="scan-qr" type="text" placeholder="Ej: MV-xxxx..." />
+        </div>
+        <div>
+          <label for="scan-store">Tienda</label>
+          <select id="scan-store">
+            <option value="Tienda Surco">Tienda Surco</option>
+            <option value="Tienda Miraflores">Tienda Miraflores</option>
+            <option value="Tienda La Molina">Tienda La Molina</option>
+          </select>
+        </div>
+      </div>
+      <button id="scan-btn">Registrar visita</button>
+      <div id="scan-status" class="status"></div>
+    </div>
+
+    <!-- Canjear premio -->
+    <div class="card">
+      <h2>2. Canjear premio 15% (máx. S/400)</h2>
+      <div class="row">
+        <div>
+          <label for="redeem-qr">QR del cliente (qr_code)</label>
+          <input id="redeem-qr" type="text" placeholder="Ej: MV-xxxx..." />
+        </div>
+        <div>
+          <label for="redeem-store">Tienda</label>
+          <select id="redeem-store">
+            <option value="Tienda Surco">Tienda Surco</option>
+            <option value="Tienda Miraflores">Tienda Miraflores</option>
+            <option value="Tienda La Molina">Tienda La Molina</option>
+          </select>
+        </div>
+        <div>
+          <label for="redeem-amount">Monto de la compra (S/)</label>
+          <input id="redeem-amount" type="number" min="0" step="0.1" placeholder="Ej: 350" />
+        </div>
+      </div>
+      <button id="redeem-btn">Canjear premio</button>
+      <div id="redeem-status" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Supabase JS desde CDN -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // ⚠️ RELLENAR ESTO CON TU PROYECTO SUPABASE
+    const SUPABASE_URL = 'https://gkmpmbrgrcsfbslnmrmy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_7zFPkEvYdwquIgrpiKAFrQ_X0TBwGAI';
+
+    const { createClient } = supabase;
+    const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const scanBtn = document.getElementById('scan-btn');
+    const scanStatus = document.getElementById('scan-status');
+    const scanQrInput = document.getElementById('scan-qr');
+    const scanStoreInput = document.getElementById('scan-store');
+
+    const redeemBtn = document.getElementById('redeem-btn');
+    const redeemStatus = document.getElementById('redeem-status');
+    const redeemQrInput = document.getElementById('redeem-qr');
+    const redeemStoreInput = document.getElementById('redeem-store');
+    const redeemAmountInput = document.getElementById('redeem-amount');
+
+    function showStatus(element, message, isError = false) {
+      element.textContent = message;
+      element.classList.remove('error', 'ok');
+      element.classList.add(isError ? 'error' : 'ok');
+    }
+
+    // 1) Registrar visita
+    scanBtn.addEventListener('click', async () => {
+      const qr = scanQrInput.value.trim();
+      const store = scanStoreInput.value;
+
+      if (!qr) {
+        showStatus(scanStatus, 'Ingresa el QR del cliente.', true);
+        return;
+      }
+
+      scanBtn.disabled = true;
+      showStatus(scanStatus, 'Registrando visita...', false);
+
+      const { data, error } = await supa.rpc('scan_visit', {
+        p_qr_code: qr,
+        p_store: store
+      });
+
+      scanBtn.disabled = false;
+
+      if (error) {
+        console.error(error);
+        showStatus(scanStatus, 'Error: ' + (error.message || 'No se pudo registrar la visita.'), true);
+        return;
+      }
+
+      const row = data && data[0];
+      if (!row) {
+        showStatus(scanStatus, 'No se recibió respuesta de la función.', true);
+        return;
+      }
+
+      const {
+        client_name,
+        visits_6m,
+        total_visits,
+        reward_created,
+        reward_available
+      } = row;
+
+      let msg = `Cliente: ${client_name || 'Sin nombre'}\n`;
+      msg += `Visitas del ciclo: ${visits_6m} de 6\n`;
+      msg += `Visitas totales: ${total_visits}\n\n`;
+
+      if (reward_created) {
+        msg += '🎉 ¡Nuevo premio creado! El cliente tiene 15% de descuento disponible.\n';
+      } else if (reward_available) {
+        msg += '✅ El cliente ya tiene un 15% pendiente por canjear.\n';
+      } else {
+        msg += 'ℹ️ Aún no llega a las 6 visitas del ciclo.\n';
+      }
+
+      showStatus(scanStatus, msg, false);
+    });
+
+    // 2) Canjear premio
+    redeemBtn.addEventListener('click', async () => {
+      const qr = redeemQrInput.value.trim();
+      const store = redeemStoreInput.value;
+      const amount = parseFloat(redeemAmountInput.value);
+
+      if (!qr) {
+        showStatus(redeemStatus, 'Ingresa el QR del cliente.', true);
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        showStatus(redeemStatus, 'Ingresa un monto válido.', true);
+        return;
+      }
+
+      redeemBtn.disabled = true;
+      showStatus(redeemStatus, 'Procesando canje...', false);
+
+      const { data, error } = await supa.rpc('redeem_reward', {
+        p_qr_code: qr,
+        p_store: store,
+        p_sale_amount: amount
+      });
+
+      redeemBtn.disabled = false;
+
+      if (error) {
+        console.error(error);
+        showStatus(redeemStatus, 'Error: ' + (error.message || 'No se pudo canjear el premio.'), true);
+        return;
+      }
+
+      const row = data && data[0];
+      if (!row) {
+        showStatus(redeemStatus, 'No se recibió respuesta de la función.', true);
+        return;
+      }
+
+      const {
+        client_name,
+        sale_amount,
+        discount_base,
+        discount_applied,
+        final_amount,
+        reward_redeemed,
+        discount_capped
+      } = row;
+
+      let msg = `Cliente: ${client_name || 'Sin nombre'}\n`;
+      msg += `Monto compra: S/${sale_amount}\n`;
+      msg += `Base descuento: S/${discount_base}\n`;
+      msg += `Descuento aplicado (15%): S/${discount_applied}\n`;
+      msg += `Monto final a cobrar: S/${final_amount}\n\n`;
+
+      if (reward_redeemed) {
+        msg += '✅ Premio canjeado correctamente.\n';
+        if (discount_capped) {
+          msg += '⚠️ El descuento se aplicó solo hasta S/400 (tope de la promo).\n';
+        }
+      } else {
+        msg += 'ℹ️ No se marcó el premio como redimido.\n';
+      }
+
+      showStatus(redeemStatus, msg, false);
+    });
+  </script>
+</body>
+</html>
