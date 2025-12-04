@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tarjeta de Cliente – Mascota Veloz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+    }
+    h1 {
+      margin-bottom: 4px;
+      font-size: 24px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      background: #ff6b35;
+      color: #fff;
+      font-weight: 600;
+      width: 100%;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      white-space: pre-line;
+    }
+    .status.error {
+      color: #b00020;
+    }
+    .status.ok {
+      color: #135e01;
+    }
+    .loyalty-card {
+      text-align: center;
+    }
+    .client-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .qr-code-text {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 12px;
+      word-break: break-all;
+    }
+    .progress-wrapper {
+      margin: 16px 0;
+    }
+    .progress-label {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: #eee;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #ff6b35;
+      transition: width 0.3s ease;
+    }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #f0f0f0;
+      color: #555;
+    }
+    .badge.green {
+      background: #e3f8e5;
+      color: #137333;
+    }
+    .badge.orange {
+      background: #fff4e5;
+      color: #b06000;
+    }
+    .info-line {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+    .highlight {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Tarjeta Mascota Veloz</h1>
+    <div class="subtitle">
+      Consulta tu progreso de visitas y tus premios del 15% 🎁
+    </div>
+
+    <!-- Card para ingresar el QR (solo para pruebas) -->
+    <div class="card">
+      <label for="qr-input">Ingresa tu código de tarjeta (qr_code)</label>
+      <input id="qr-input" type="text" placeholder="Ej: MV-TEST-2" />
+      <button id="load-btn">Ver mi tarjeta</button>
+      <div id="load-status" class="status"></div>
+    </div>
+
+    <!-- Card principal de la tarjeta -->
+    <div class="card loyalty-card" id="loyalty-card" style="display:none;">
+      <div class="client-name" id="client-name">Cliente</div>
+      <div class="qr-code-text" id="client-qr"></div>
+
+      <div class="progress-wrapper">
+        <div class="progress-label">
+          Sellos del ciclo: <span id="visits-cycle">0</span> de 6
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="badges" id="badges">
+          <!-- badges dinámicas -->
+        </div>
+      </div>
+
+      <div class="info-line">
+        Visitas totales acumuladas: <span class="highlight" id="total-visits">0</span>
+      </div>
+      <div class="info-line" id="reward-message"></div>
+      <div class="info-line" id="next-steps"></div>
+    </div>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // ⚠️ IMPORTANTE:
+    // COPIA AQUÍ LOS MISMOS DATOS QUE TIENES EN index.html
+    const SUPABASE_URL = 'https://gkmpmbrgrcsfbslnmrmy.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_7zFPkEvYdwquIgrpiKAFrQ_X0TBwGAI';
+
+    const { createClient } = supabase;
+    const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const qrInput = document.getElementById('qr-input');
+    const loadBtn = document.getElementById('load-btn');
+    const loadStatus = document.getElementById('load-status');
+
+    const cardEl = document.getElementById('loyalty-card');
+    const nameEl = document.getElementById('client-name');
+    const qrTextEl = document.getElementById('client-qr');
+    const visitsCycleEl = document.getElementById('visits-cycle');
+    const totalVisitsEl = document.getElementById('total-visits');
+    const progressFillEl = document.getElementById('progress-fill');
+    const rewardMsgEl = document.getElementById('reward-message');
+    const nextStepsEl = document.getElementById('next-steps');
+    const badgesEl = document.getElementById('badges');
+
+    function showStatus(message, isError = false) {
+      loadStatus.textContent = message;
+      loadStatus.classList.remove('error', 'ok');
+      loadStatus.classList.add(isError ? 'error' : 'ok');
+    }
+
+    function updateCard(data, qr) {
+      const { client_name, visits_6m, total_visits, reward_available } = data;
+
+      nameEl.textContent = client_name || 'Cliente';
+      qrTextEl.textContent = `Código de tarjeta: ${qr}`;
+      visitsCycleEl.textContent = visits_6m;
+      totalVisitsEl.textContent = total_visits;
+
+      const progress = Math.min(6, visits_6m || 0);
+      const percentage = (progress / 6) * 100;
+      progressFillEl.style.width = `${percentage}%`;
+
+      badgesEl.innerHTML = '';
+
+      if (reward_available) {
+        rewardMsgEl.textContent = '🎉 ¡Tienes un premio del 15% disponible para tu próxima compra!';
+        nextStepsEl.textContent = 'Muestra esta tarjeta en caja y menciona que deseas usar tu 15%.';
+        const b1 = document.createElement('div');
+        b1.className = 'badge green';
+        b1.textContent = 'Premio disponible';
+        badgesEl.appendChild(b1);
+
+        const b2 = document.createElement('div');
+        b2.className = 'badge';
+        b2.textContent = 'Sellos completados';
+        badgesEl.appendChild(b2);
+      } else {
+        const restantes = Math.max(0, 6 - (visits_6m || 0));
+        rewardMsgEl.textContent = `Te faltan ${restantes} visita(s) para tu próximo 15% de descuento.`;
+        nextStepsEl.textContent = 'Sigue visitándonos y no olvides mostrar tu tarjeta en cada compra.';
+
+        const b1 = document.createElement('div');
+        b1.className = 'badge orange';
+        b1.textContent = 'Acumulando sellos';
+        badgesEl.appendChild(b1);
+      }
+
+      const bTotal = document.createElement('div');
+      bTotal.className = 'badge';
+      bTotal.textContent = `Visitas totales: ${total_visits}`;
+      badgesEl.appendChild(bTotal);
+
+      cardEl.style.display = 'block';
+    }
+
+    async function loadCard(qr) {
+      if (!qr) {
+        showStatus('Ingresa tu código de tarjeta.', true);
+        return;
+      }
+
+      loadBtn.disabled = true;
+      showStatus('Consultando tu tarjeta...', false);
+      cardEl.style.display = 'none';
+
+      const { data, error } = await supa.rpc('get_loyalty_status', {
+        p_qr_code: qr
+      });
+
+      loadBtn.disabled = false;
+
+      if (error) {
+        console.error(error);
+        showStatus('Error: ' + (error.message || 'No se pudo cargar la tarjeta.'), true);
+        return;
+      }
+
+      const row = data && data[0];
+      if (!row) {
+        showStatus('No se encontró tarjeta para ese código.', true);
+        return;
+      }
+
+      showStatus('', false);
+      updateCard(row, qr);
+    }
+
+    // Botón "Ver mi tarjeta"
+    loadBtn.addEventListener('click', () => {
+      const qr = qrInput.value.trim();
+      loadCard(qr);
+    });
+
+    // Extra: si viene ?qr=MV-XXXX en la URL, lo usamos automáticamente
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const qrFromUrl = getQueryParam('qr');
+    if (qrFromUrl) {
+      qrInput.value = qrFromUrl;
+      loadCard(qrFromUrl);
+    }
+  </script>
+</body>
+</html>
