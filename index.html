@@ -27,12 +27,56 @@
       min-height: 100vh;
     }
 
-    .side-bar {
-      width: 90px;
-      background: #ff6b35;
-      position: relative;
-      overflow: hidden;
-    }
+  /* Barra lateral corporativa */
+.side-bar {
+  width: 90px;
+  position: relative;
+  overflow: hidden;
+  background:
+    /* rayas diagonales más oscuras sobre el naranja */
+    repeating-linear-gradient(
+      135deg,
+      #ff6b35 0,
+      #ff6b35 18px,
+      #f7642b 18px,
+      #f7642b 36px
+    );
+}
+
+/* Franja central de puntos sutiles */
+.side-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 34px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle, #fef8e9 3px, transparent 4px),
+    radial-gradient(circle, #2ad7b1 3px, transparent 4px),
+    radial-gradient(circle, #a7a9ad 3px, transparent 4px);
+  background-position:
+    0 0,
+    12px 18px,
+    24px 9px;
+  background-size: 24px 32px;
+  opacity: 0.85;
+}
+
+/* En móviles ocultamos barras para dar más espacio */
+@media (max-width: 900px) {
+  .side-bar {
+    display: none;
+  }
+  .layout {
+    max-width: 100%;
+  }
+}
+.shape {
+  display: none;
+}
+
 
     /* Formas “fiesta” */
     .shape {
@@ -120,21 +164,20 @@
       margin-bottom: 8px;
     }
 
-    .logo {
-      height: 52px;
-      border-radius: 10px;
-      background: #fff;
-      padding: 4px 10px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  /* Contenedor del logo: sin fondo ni tarjeta */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+}
 
-    .logo img {
-      max-height: 80px;
-      display: block;
-    }
+/* Tamaño del logo (ajusta max-height si quieres aún más grande) */
+.logo img {
+    max-height: 150px;   /* prueba 80px, si lo quieres un poco menor pon 70px */
+    display: block;
+}
+
 
     h1 {
       margin: 0;
