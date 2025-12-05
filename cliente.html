@@ -145,7 +145,7 @@
   <div class="app">
     <h1>Tarjeta Mascota Veloz</h1>
     <div class="subtitle">
-      Consulta tu progreso de visitas y tus premios del 15% 🎁
+      Consulta tu progreso de visitas y tus premios.🎁
     </div>
 
     <!-- Card para ingresar el QR (solo para pruebas) -->
@@ -227,8 +227,8 @@
       badgesEl.innerHTML = '';
 
       if (reward_available) {
-        rewardMsgEl.textContent = '🎉 ¡Tienes un premio del 15% disponible para tu próxima compra!';
-        nextStepsEl.textContent = 'Muestra esta tarjeta en caja y menciona que deseas usar tu 15%.';
+        rewardMsgEl.textContent = '🎉 ¡Tienes un premio para tu próxima visita!';
+        nextStepsEl.textContent = 'Muestra esta tarjeta en caja y solicita tu premio!';
         const b1 = document.createElement('div');
         b1.className = 'badge green';
         b1.textContent = 'Premio disponible';
@@ -240,7 +240,7 @@
         badgesEl.appendChild(b2);
       } else {
         const restantes = Math.max(0, 6 - (visits_6m || 0));
-        rewardMsgEl.textContent = `Te faltan ${restantes} visita(s) para tu próximo 15% de descuento.`;
+        rewardMsgEl.textContent = `Te faltan ${restantes} visita(s) para tu próximo premio.`;
         nextStepsEl.textContent = 'Sigue visitándonos y no olvides mostrar tu tarjeta en cada compra.';
 
         const b1 = document.createElement('div');
