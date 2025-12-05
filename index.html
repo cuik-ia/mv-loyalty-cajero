@@ -5,63 +5,152 @@
   <title>Cajero – Mascota Veloz Loyalty</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
       margin: 0;
       padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f3f3;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Layout con bandas laterales */
+    .layout {
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+      min-height: 100vh;
+    }
+
+    .side-bar {
+      width: 80px;
+      background: #ff6b35;
+      position: relative;
+    }
+
+    /* Patrón simple de puntos “festivo” */
+    .side-bar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, #ffffff 3px, transparent 4px);
+      background-size: 24px 24px;
+      opacity: 0.9;
+    }
+
+    /* Ocultar bandas en móviles para que sea usable */
+    @media (max-width: 900px) {
+      .side-bar {
+        display: none;
+      }
+      .layout {
+        max-width: 100%;
+      }
+    }
+
+    .main {
+      flex: 1;
+      padding: 24px 24px 40px;
       display: flex;
       justify-content: center;
     }
+
     .app {
-      max-width: 900px;
       width: 100%;
-      padding: 24px;
+      max-width: 900px;
     }
+
+    /* Header con logo + título */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      height: 52px;
+      border-radius: 10px;
+      background: #fff;
+      padding: 4px 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo img {
+      max-height: 40px;
+      display: block;
+    }
+
     h1 {
-      margin-bottom: 4px;
+      margin: 0;
+      font-size: 22px;
     }
+
     .subtitle {
       color: #666;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      font-size: 13px;
     }
+
     .card {
       background: #ffffff;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      margin-bottom: 18px;
     }
+
     .card h2 {
       margin-top: 0;
       margin-bottom: 8px;
+      font-size: 18px;
     }
+
     label {
       display: block;
-      font-size: 14px;
-      margin-top: 12px;
+      font-size: 13px;
+      margin-top: 10px;
       margin-bottom: 4px;
     }
+
     input, select {
       width: 100%;
       padding: 8px 10px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #d3d3d3;
       font-size: 14px;
-      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #ff6b35;
+      box-shadow: 0 0 0 2px rgba(255,107,53,0.2);
+    }
+
     .row {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
+
     .row > div {
       flex: 1;
       min-width: 200px;
     }
+
     button {
-      margin-top: 16px;
-      padding: 10px 16px;
+      margin-top: 14px;
+      padding: 9px 18px;
       border-radius: 999px;
       border: none;
       font-size: 14px;
@@ -69,91 +158,185 @@
       background: #ff6b35;
       color: #fff;
       font-weight: 600;
+      box-shadow: 0 3px 6px rgba(255,107,53,0.4);
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
     }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(255,107,53,0.45);
+      background: #ff5a1f;
+    }
+
     button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
     }
+
+    .btn-secondary {
+      background: #777;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.18);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #666;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.22);
+    }
+
     .status {
-      margin-top: 12px;
-      font-size: 14px;
+      margin-top: 10px;
+      font-size: 13px;
       white-space: pre-line;
     }
+
     .status.error {
       color: #b00020;
     }
+
     .status.ok {
       color: #135e01;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #ffe8d8;
+      color: #a34a14;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+
+    .session-info {
+      font-size: 14px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>Mascota Veloz – Panel de Cajero</h1>
-    <div class="subtitle">
-      Registrar visitas (mín. S/80) y canjear premios del 10% (tope S/1000)
-    </div>
+  <div class="layout">
+    <div class="side-bar"></div>
 
-    <!-- Registrar visita -->
-    <div class="card">
-      <h2>1. Registrar visita</h2>
-      <div class="row">
-        <div>
-          <label for="scan-qr">QR del cliente (qr_code)</label>
-          <input id="scan-qr" type="text" placeholder="Escanear QR o escribir código..." />
+    <div class="main">
+      <div class="app">
+        <!-- HEADER -->
+        <div class="header">
+          <div class="logo">
+            <!-- Reemplaza la ruta del logo por la tuya -->
+            <img src="mvlogo.png" alt="Mascota Veloz" />
+          </div>
+          <div>
+            <h1>Mascota Veloz – Panel de Cajero</h1>
+            <div class="subtitle">
+              Registrar visitas (mín. S/80) y canjear premios del 10% (tope S/1000)
+            </div>
+          </div>
         </div>
-        <div>
-          <label for="scan-store">Tienda</label>
-          <select id="scan-store">
-            <option value="Tienda Jacaranda">Tienda Jacaranda</option>
-            <option value="Tienda Santa Cruz">Tienda Santa Cruz</option>
-            <option value="Tienda Pezet">Tienda Pezet</option>
-          </select>
+
+        <!-- LOGIN -->
+        <div id="login-card" class="card">
+          <h2>Iniciar sesión</h2>
+          <label for="login-email">Correo</label>
+          <input id="login-email" type="email" placeholder="Ej: cuikperu@gmail.com" />
+
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" type="password" placeholder="Contraseña" />
+
+          <button id="login-btn">Ingresar</button>
+          <div id="login-status" class="status"></div>
         </div>
-        <div>
-          <label for="scan-amount">Monto de la compra (S/)</label>
-          <input id="scan-amount" type="number" min="0" step="0.1" placeholder="Ej: 120" />
+
+        <!-- PANEL CAJERO -->
+        <div id="panel" class="hidden">
+          <div class="card">
+            <h2>
+              Información de sesión
+              <span class="tag" id="store-tag">Tienda: -</span>
+            </h2>
+            <div class="session-info">
+              Usuario: <span id="user-email">-</span>
+            </div>
+            <button id="logout-btn" class="btn-secondary">Cerrar sesión</button>
+          </div>
+
+          <!-- Registrar visita -->
+          <div class="card">
+            <h2>1. Registrar visita</h2>
+            <div class="row">
+              <div>
+                <label for="scan-qr">QR del cliente (qr_code)</label>
+                <input id="scan-qr" type="text" placeholder="Escanear QR o escribir código..." />
+              </div>
+              <div>
+                <label>Tienda</label>
+                <input id="scan-store" type="text" disabled />
+              </div>
+              <div>
+                <label for="scan-amount">Monto de la compra (S/)</label>
+                <input id="scan-amount" type="number" min="0" step="0.1" placeholder="Ej: 120" />
+              </div>
+            </div>
+            <button id="scan-btn">Registrar visita</button>
+            <div id="scan-status" class="status"></div>
+          </div>
+
+          <!-- Canjear premio -->
+          <div class="card">
+            <h2>2. Canjear premio 10% (máx. S/1000)</h2>
+            <div class="row">
+              <div>
+                <label for="redeem-qr">QR del cliente (qr_code)</label>
+                <input id="redeem-qr" type="text" placeholder="Escanear QR o escribir código..." />
+              </div>
+              <div>
+                <label>Tienda</label>
+                <input id="redeem-store" type="text" disabled />
+              </div>
+              <div>
+                <label for="redeem-amount">Monto de la compra (S/)</label>
+                <input id="redeem-amount" type="number" min="0" step="0.1" placeholder="Ej: 350" />
+              </div>
+            </div>
+            <button id="redeem-btn">Canjear premio</button>
+            <div id="redeem-status" class="status"></div>
+          </div>
         </div>
       </div>
-      <button id="scan-btn">Registrar visita</button>
-      <div id="scan-status" class="status"></div>
     </div>
 
-    <!-- Canjear premio -->
-    <div class="card">
-      <h2>2. Canjear premio 10% (máx. S/1000)</h2>
-      <div class="row">
-        <div>
-          <label for="redeem-qr">QR del cliente (qr_code)</label>
-          <input id="redeem-qr" type="text" placeholder="Escanear QR o escribir código..." />
-        </div>
-        <div>
-          <label for="redeem-store">Tienda</label>
-          <select id="redeem-store">
-            <option value="Tienda Jacaranda">Tienda Jacaranda</option>
-            <option value="Tienda Santa Cruz">Tienda Santa Cruz</option>
-            <option value="Tienda Pezet">Tienda Pezet</option>
-          </select>
-        </div>
-        <div>
-          <label for="redeem-amount">Monto de la compra (S/)</label>
-          <input id="redeem-amount" type="number" min="0" step="0.1" placeholder="Ej: 350" />
-        </div>
-      </div>
-      <button id="redeem-btn">Canjear premio</button>
-      <div id="redeem-status" class="status"></div>
-    </div>
+    <div class="side-bar"></div>
   </div>
 
-  <!-- Supabase JS desde CDN -->
+  <!-- Supabase JS -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    // ⚠️ RELLENA ESTO CON TU PROYECTO SUPABASE
     const SUPABASE_URL = 'https://gkmpmbrgrcsfbslnmrmy.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7zFPkEvYdwquIgrpiKAFrQ_X0TBwGAI';
 
     const { createClient } = supabase;
     const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // UI refs
+    const loginCard = document.getElementById('login-card');
+    const panel = document.getElementById('panel');
+
+    const loginEmailInput = document.getElementById('login-email');
+    const loginPasswordInput = document.getElementById('login-password');
+    const loginBtn = document.getElementById('login-btn');
+    const loginStatus = document.getElementById('login-status');
+
+    const userEmailSpan = document.getElementById('user-email');
+    const storeTag = document.getElementById('store-tag');
+    const logoutBtn = document.getElementById('logout-btn');
 
     const scanBtn = document.getElementById('scan-btn');
     const scanStatus = document.getElementById('scan-status');
@@ -173,10 +356,75 @@
       element.classList.add(isError ? 'error' : 'ok');
     }
 
-    // 1) Registrar visita
+    async function loadSession() {
+      const { data, error } = await supa.auth.getSession();
+      if (error || !data.session) {
+        // sin sesión
+        loginCard.classList.remove('hidden');
+        panel.classList.add('hidden');
+        return;
+      }
+
+      const user = data.session.user;
+      userEmailSpan.textContent = user.email;
+
+      // obtener tienda
+      const { data: storeData, error: storeError } = await supa.rpc('get_my_store');
+      if (storeError || !storeData || storeData.length === 0) {
+        showStatus(loginStatus, 'Error obteniendo tienda del usuario. Revisa store_users.', true);
+        loginCard.classList.remove('hidden');
+        panel.classList.add('hidden');
+        return;
+      }
+
+      const storeName = storeData[0].store_name;
+      storeTag.textContent = 'Tienda: ' + storeName;
+      scanStoreInput.value = storeName;
+      redeemStoreInput.value = storeName;
+
+      loginCard.classList.add('hidden');
+      panel.classList.remove('hidden');
+    }
+
+    // Login
+    loginBtn.addEventListener('click', async () => {
+      const email = loginEmailInput.value.trim();
+      const password = loginPasswordInput.value.trim();
+
+      if (!email || !password) {
+        showStatus(loginStatus, 'Ingresa correo y contraseña.', true);
+        return;
+      }
+
+      loginBtn.disabled = true;
+      showStatus(loginStatus, 'Iniciando sesión...', false);
+
+      const { data, error } = await supa.auth.signInWithPassword({ email, password });
+
+      loginBtn.disabled = false;
+
+      if (error) {
+        showStatus(loginStatus, 'Error al iniciar sesión: ' + (error.message || ''), true);
+        return;
+      }
+
+      showStatus(loginStatus, '', false);
+      await loadSession();
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', async () => {
+      await supa.auth.signOut();
+      panel.classList.add('hidden');
+      loginCard.classList.remove('hidden');
+      loginStatus.textContent = '';
+      scanStatus.textContent = '';
+      redeemStatus.textContent = '';
+    });
+
+    // Registrar visita
     scanBtn.addEventListener('click', async () => {
       const qr = scanQrInput.value.trim();
-      const store = scanStoreInput.value;
       const amount = parseFloat(scanAmountInput.value);
 
       if (!qr) {
@@ -191,9 +439,11 @@
       scanBtn.disabled = true;
       showStatus(scanStatus, 'Registrando visita...', false);
 
+      const storeName = scanStoreInput.value; // solo informativo
+
       const { data, error } = await supa.rpc('scan_visit', {
         p_qr_code: qr,
-        p_store: store,
+        p_store: storeName,
         p_sale_amount: amount
       });
 
@@ -231,12 +481,10 @@
         return;
       }
 
-      // Mensaje de regalo en 3ra visita
       if (visits_6m === 3) {
         msg += '🎁 Tercera visita del ciclo: entregar regalo sorpresa al cliente.\n';
       }
 
-      // Mensajes de premio 10%
       if (reward_created) {
         msg += '🎉 ¡Nuevo premio creado! El cliente tiene 10% de descuento disponible para una próxima compra (tope S/1000).\n';
       } else if (reward_available) {
@@ -248,10 +496,9 @@
       showStatus(scanStatus, msg, false);
     });
 
-    // 2) Canjear premio
+    // Canjear premio
     redeemBtn.addEventListener('click', async () => {
       const qr = redeemQrInput.value.trim();
-      const store = redeemStoreInput.value;
       const amount = parseFloat(redeemAmountInput.value);
 
       if (!qr) {
@@ -266,9 +513,11 @@
       redeemBtn.disabled = true;
       showStatus(redeemStatus, 'Procesando canje...', false);
 
+      const storeName = redeemStoreInput.value; // solo informativo
+
       const { data, error } = await supa.rpc('redeem_reward', {
         p_qr_code: qr,
-        p_store: store,
+        p_store: storeName,
         p_sale_amount: amount
       });
 
@@ -313,7 +562,11 @@
 
       showStatus(redeemStatus, msg, false);
     });
+
+    // Al cargar la página, ver si ya hay sesión
+    loadSession();
   </script>
 </body>
 </html>
+
 
