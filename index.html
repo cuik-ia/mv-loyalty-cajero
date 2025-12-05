@@ -19,50 +19,44 @@
       min-height: 100vh;
     }
 
-    /* Layout con barras laterales */
-    .layout {
-      display: flex;
-      width: 100%;
-      max-width: 1200px;
-      min-height: 100vh;
-    }
+  .layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
 
-  /* Barra lateral corporativa */
+
 .side-bar {
-  width: 90px;
-  position: relative;
-  overflow: hidden;
+  width: 120px;
+  min-height: 100vh;
   background:
-    /* rayas diagonales más oscuras sobre el naranja */
+    /* patrón de líneas diagonales muy suaves */
     repeating-linear-gradient(
       135deg,
       #ff6b35 0,
-      #ff6b35 18px,
-      #f7642b 18px,
-      #f7642b 36px
+      #ff6b35 10px,
+      #f7642b 10px,
+      #f7642b 20px
     );
 }
 
-/* Franja central de puntos sutiles */
+/* franja central ligeramente más clara para dar profundidad */
 .side-bar::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 34px;
+  width: 60px;
   transform: translateX(-50%);
-  background:
-    radial-gradient(circle, #fef8e9 3px, transparent 4px),
-    radial-gradient(circle, #2ad7b1 3px, transparent 4px),
-    radial-gradient(circle, #a7a9ad 3px, transparent 4px);
-  background-position:
-    0 0,
-    12px 18px,
-    24px 9px;
-  background-size: 24px 32px;
-  opacity: 0.85;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.0)
+  );
 }
+
+.shape { display: none; }
 
 /* En móviles ocultamos barras para dar más espacio */
 @media (max-width: 900px) {
@@ -155,48 +149,50 @@
       width: 100%;
       max-width: 900px;
     }
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  text-align: center;
+}
 
-    /* Header con logo + título */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 8px;
-    }
-
-  /* Contenedor del logo: sin fondo ni tarjeta */
 .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
 }
 
-/* Tamaño del logo (ajusta max-height si quieres aún más grande) */
 .logo img {
-    max-height: 150px;   /* prueba 80px, si lo quieres un poco menor pon 70px */
-    display: block;
+  max-height: 120px; /* puedes bajar a 80 si lo ves muy grande */
+  display: block;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.subtitle {
+  color: #666;
+  margin-top: 4px;
+  margin-bottom: 24px;
+  font-size: 13px;
 }
 
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
+   .card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin: 0 auto 18px;      /* centrado */
+  max-width: 800px;         /* ancho máximo de la tarjeta */
+}
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 20px;
-      font-size: 13px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-      margin-bottom: 18px;
-    }
 
     .card h2 {
       margin-top: 0;
