@@ -13,13 +13,13 @@
       margin: 0;
       padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f3f3;
+      background: #fef8e9; /* Fondo crema */
       display: flex;
       justify-content: center;
       min-height: 100vh;
     }
 
-    /* Layout con bandas laterales */
+    /* Layout con barras laterales */
     .layout {
       display: flex;
       width: 100%;
@@ -28,23 +28,69 @@
     }
 
     .side-bar {
-      width: 80px;
+      width: 90px;
       background: #ff6b35;
       position: relative;
+      overflow: hidden;
     }
 
-    /* Patrón simple de puntos “festivo” */
-    .side-bar::before {
-      content: "";
+    /* Formas “fiesta” */
+    .shape {
       position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle, #ffffff 3px, transparent 4px);
-      background-size: 24px 24px;
-      opacity: 0.9;
+      opacity: 0.95;
     }
 
-    /* Ocultar bandas en móviles para que sea usable */
+    .circle {
+      border-radius: 50%;
+    }
+
+    .diamond {
+      width: 22px;
+      height: 22px;
+      transform: rotate(45deg);
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 13px solid transparent;
+      border-right: 13px solid transparent;
+      border-bottom: 24px solid #2ad7b1;
+    }
+
+    /* Colores */
+    .c-cream  { background: #fef8e9; }
+    .c-mint   { background: #2ad7b1; }
+    .c-gray   { background: #a7a9ad; }
+
+    /* Posiciones “desordenadas” izquierda */
+    .left .s1 { top: 30px;  left: 18px;  width: 16px; height: 16px; }
+    .left .s2 { top: 90px;  left: 45px;  width: 22px; height: 22px; }
+    .left .s3 { top: 150px; left: 14px; width: 14px; height: 14px; }
+    .left .s4 { top: 210px; left: 50px; width: 28px; height: 28px; }
+    .left .s5 { top: 280px; left: 22px; width: 20px; height: 20px; }
+    .left .s6 { top: 350px; left: 52px; width: 18px; height: 18px; }
+    .left .s7 { top: 420px; left: 16px; width: 24px; height: 24px; }
+    .left .s8 { top: 490px; left: 40px; width: 14px; height: 14px; }
+    .left .t1 { top: 120px; left: 20px; }
+    .left .t2 { top: 320px; left: 10px; }
+    .left .d1 { top: 60px;  left: 55px; }
+    .left .d2 { top: 260px; left: 35px; }
+
+    /* Posiciones derecha (otro “desorden”) */
+    .right .s1 { top: 40px;  left: 45px; width: 18px; height: 18px; }
+    .right .s2 { top: 110px; left: 12px; width: 22px; height: 22px; }
+    .right .s3 { top: 180px; left: 50px; width: 16px; height: 16px; }
+    .right .s4 { top: 230px; left: 20px; width: 26px; height: 26px; }
+    .right .s5 { top: 310px; left: 48px; width: 14px; height: 14px; }
+    .right .s6 { top: 370px; left: 18px; width: 20px; height: 20px; }
+    .right .s7 { top: 440px; left: 52px; width: 24px; height: 24px; }
+    .right .s8 { top: 510px; left: 26px; width: 16px; height: 16px; }
+    .right .t1 { top: 150px; left: 35px; }
+    .right .t2 { top: 350px; left: 55px; }
+    .right .d1 { top: 80px;  left: 15px; }
+    .right .d2 { top: 280px; left: 45px; }
+
     @media (max-width: 900px) {
       .side-bar {
         display: none;
@@ -224,14 +270,31 @@
 </head>
 <body>
   <div class="layout">
-    <div class="side-bar"></div>
+    <!-- Barra izquierda -->
+    <div class="side-bar left">
+      <!-- Círculos -->
+      <div class="shape circle c-cream s1"></div>
+      <div class="shape circle c-mint  s2"></div>
+      <div class="shape circle c-gray  s3"></div>
+      <div class="shape circle c-cream s4"></div>
+      <div class="shape circle c-mint  s5"></div>
+      <div class="shape circle c-gray  s6"></div>
+      <div class="shape circle c-cream s7"></div>
+      <div class="shape circle c-mint  s8"></div>
+      <!-- Triángulos -->
+      <div class="shape triangle t1"></div>
+      <div class="shape triangle t2"></div>
+      <!-- Diamantes -->
+      <div class="shape diamond c-gray d1"></div>
+      <div class="shape diamond c-cream d2"></div>
+    </div>
 
     <div class="main">
       <div class="app">
         <!-- HEADER -->
         <div class="header">
           <div class="logo">
-            <!-- Reemplaza la ruta del logo por la tuya -->
+            <!-- Asegúrate de que mvlogo.png esté al lado de index.html -->
             <img src="mvlogo.png" alt="Mascota Veloz" />
           </div>
           <div>
@@ -313,7 +376,21 @@
       </div>
     </div>
 
-    <div class="side-bar"></div>
+    <!-- Barra derecha -->
+    <div class="side-bar right">
+      <div class="shape circle c-mint  s1"></div>
+      <div class="shape circle c-cream s2"></div>
+      <div class="shape circle c-gray  s3"></div>
+      <div class="shape circle c-mint  s4"></div>
+      <div class="shape circle c-cream s5"></div>
+      <div class="shape circle c-gray  s6"></div>
+      <div class="shape circle c-mint  s7"></div>
+      <div class="shape circle c-cream s8"></div>
+      <div class="shape triangle t1"></div>
+      <div class="shape triangle t2"></div>
+      <div class="shape diamond c-cream d1"></div>
+      <div class="shape diamond c-gray  d2"></div>
+    </div>
   </div>
 
   <!-- Supabase JS -->
@@ -325,7 +402,6 @@
     const { createClient } = supabase;
     const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // UI refs
     const loginCard = document.getElementById('login-card');
     const panel = document.getElementById('panel');
 
@@ -359,7 +435,6 @@
     async function loadSession() {
       const { data, error } = await supa.auth.getSession();
       if (error || !data.session) {
-        // sin sesión
         loginCard.classList.remove('hidden');
         panel.classList.add('hidden');
         return;
@@ -368,7 +443,6 @@
       const user = data.session.user;
       userEmailSpan.textContent = user.email;
 
-      // obtener tienda
       const { data: storeData, error: storeError } = await supa.rpc('get_my_store');
       if (storeError || !storeData || storeData.length === 0) {
         showStatus(loginStatus, 'Error obteniendo tienda del usuario. Revisa store_users.', true);
@@ -386,7 +460,6 @@
       panel.classList.remove('hidden');
     }
 
-    // Login
     loginBtn.addEventListener('click', async () => {
       const email = loginEmailInput.value.trim();
       const password = loginPasswordInput.value.trim();
@@ -412,7 +485,6 @@
       await loadSession();
     });
 
-    // Logout
     logoutBtn.addEventListener('click', async () => {
       await supa.auth.signOut();
       panel.classList.add('hidden');
@@ -422,7 +494,6 @@
       redeemStatus.textContent = '';
     });
 
-    // Registrar visita
     scanBtn.addEventListener('click', async () => {
       const qr = scanQrInput.value.trim();
       const amount = parseFloat(scanAmountInput.value);
@@ -439,7 +510,7 @@
       scanBtn.disabled = true;
       showStatus(scanStatus, 'Registrando visita...', false);
 
-      const storeName = scanStoreInput.value; // solo informativo
+      const storeName = scanStoreInput.value;
 
       const { data, error } = await supa.rpc('scan_visit', {
         p_qr_code: qr,
@@ -462,7 +533,6 @@
       }
 
       const {
-        client_id,
         client_name,
         visits_6m,
         total_visits,
@@ -496,7 +566,6 @@
       showStatus(scanStatus, msg, false);
     });
 
-    // Canjear premio
     redeemBtn.addEventListener('click', async () => {
       const qr = redeemQrInput.value.trim();
       const amount = parseFloat(redeemAmountInput.value);
@@ -513,7 +582,7 @@
       redeemBtn.disabled = true;
       showStatus(redeemStatus, 'Procesando canje...', false);
 
-      const storeName = redeemStoreInput.value; // solo informativo
+      const storeName = redeemStoreInput.value;
 
       const { data, error } = await supa.rpc('redeem_reward', {
         p_qr_code: qr,
@@ -563,10 +632,10 @@
       showStatus(redeemStatus, msg, false);
     });
 
-    // Al cargar la página, ver si ya hay sesión
     loadSession();
   </script>
 </body>
 </html>
+
 
 
