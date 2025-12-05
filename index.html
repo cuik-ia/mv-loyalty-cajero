@@ -90,7 +90,9 @@
 <body>
   <div class="app">
     <h1>Mascota Veloz – Panel de Cajero</h1>
-    <div class="subtitle">Registrar visitas y canjear premios del 15% (máx. S/400)</div>
+    <div class="subtitle">
+      Registrar visitas (mín. S/80) y canjear premios del 10% (tope S/1000)
+    </div>
 
     <!-- Registrar visita -->
     <div class="card">
@@ -98,15 +100,19 @@
       <div class="row">
         <div>
           <label for="scan-qr">QR del cliente (qr_code)</label>
-          <input id="scan-qr" type="text" placeholder="Ej: MV-xxxx..." />
+          <input id="scan-qr" type="text" placeholder="Escanear QR o escribir código..." />
         </div>
         <div>
           <label for="scan-store">Tienda</label>
           <select id="scan-store">
-            <option value="Tienda Surco">Tienda Surco</option>
-            <option value="Tienda Miraflores">Tienda Miraflores</option>
-            <option value="Tienda La Molina">Tienda La Molina</option>
+            <option value="Tienda Jacaranda">Tienda Jacaranda</option>
+            <option value="Tienda Santa Cruz">Tienda Santa Cruz</option>
+            <option value="Tienda Pezet">Tienda Pezet</option>
           </select>
+        </div>
+        <div>
+          <label for="scan-amount">Monto de la compra (S/)</label>
+          <input id="scan-amount" type="number" min="0" step="0.1" placeholder="Ej: 120" />
         </div>
       </div>
       <button id="scan-btn">Registrar visita</button>
@@ -115,18 +121,18 @@
 
     <!-- Canjear premio -->
     <div class="card">
-      <h2>2. Canjear premio 15% (máx. S/400)</h2>
+      <h2>2. Canjear premio 10% (máx. S/1000)</h2>
       <div class="row">
         <div>
           <label for="redeem-qr">QR del cliente (qr_code)</label>
-          <input id="redeem-qr" type="text" placeholder="Ej: MV-xxxx..." />
+          <input id="redeem-qr" type="text" placeholder="Escanear QR o escribir código..." />
         </div>
         <div>
           <label for="redeem-store">Tienda</label>
           <select id="redeem-store">
-            <option value="Tienda Surco">Tienda Surco</option>
-            <option value="Tienda Miraflores">Tienda Miraflores</option>
-            <option value="Tienda La Molina">Tienda La Molina</option>
+            <option value="Tienda Jacaranda">Tienda Jacaranda</option>
+            <option value="Tienda Santa Cruz">Tienda Santa Cruz</option>
+            <option value="Tienda Pezet">Tienda Pezet</option>
           </select>
         </div>
         <div>
@@ -142,7 +148,7 @@
   <!-- Supabase JS desde CDN -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    // ⚠️ RELLENAR ESTO CON TU PROYECTO SUPABASE
+    // ⚠️ RELLENA ESTO CON TU PROYECTO SUPABASE
     const SUPABASE_URL = 'https://gkmpmbrgrcsfbslnmrmy.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_7zFPkEvYdwquIgrpiKAFrQ_X0TBwGAI';
 
@@ -153,6 +159,7 @@
     const scanStatus = document.getElementById('scan-status');
     const scanQrInput = document.getElementById('scan-qr');
     const scanStoreInput = document.getElementById('scan-store');
+    const scanAmountInput = document.getElementById('scan-amount');
 
     const redeemBtn = document.getElementById('redeem-btn');
     const redeemStatus = document.getElementById('redeem-status');
@@ -170,9 +177,14 @@
     scanBtn.addEventListener('click', async () => {
       const qr = scanQrInput.value.trim();
       const store = scanStoreInput.value;
+      const amount = parseFloat(scanAmountInput.value);
 
       if (!qr) {
-        showStatus(scanStatus, 'Ingresa el QR del cliente.', true);
+        showStatus(scanStatus, 'Ingresa o escanea el QR del cliente.', true);
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        showStatus(scanStatus, 'Ingresa un monto de compra válido.', true);
         return;
       }
 
@@ -181,7 +193,8 @@
 
       const { data, error } = await supa.rpc('scan_visit', {
         p_qr_code: qr,
-        p_store: store
+        p_store: store,
+        p_sale_amount: amount
       });
 
       scanBtn.disabled = false;
@@ -199,21 +212,35 @@
       }
 
       const {
+        client_id,
         client_name,
         visits_6m,
         total_visits,
         reward_created,
-        reward_available
+        reward_available,
+        visit_registered
       } = row;
 
       let msg = `Cliente: ${client_name || 'Sin nombre'}\n`;
       msg += `Visitas del ciclo: ${visits_6m} de 6\n`;
       msg += `Visitas totales: ${total_visits}\n\n`;
 
+      if (!visit_registered) {
+        msg += '⚠️ La compra fue menor a S/80, no se registró visita en la tarjeta.\n';
+        showStatus(scanStatus, msg, false);
+        return;
+      }
+
+      // Mensaje de regalo en 3ra visita
+      if (visits_6m === 3) {
+        msg += '🎁 Tercera visita del ciclo: entregar regalo sorpresa al cliente.\n';
+      }
+
+      // Mensajes de premio 10%
       if (reward_created) {
-        msg += '🎉 ¡Nuevo premio creado! El cliente tiene 15% de descuento disponible.\n';
+        msg += '🎉 ¡Nuevo premio creado! El cliente tiene 10% de descuento disponible para una próxima compra (tope S/1000).\n';
       } else if (reward_available) {
-        msg += '✅ El cliente ya tiene un 15% pendiente por canjear.\n';
+        msg += '✅ El cliente ya tiene un 10% pendiente por canjear (tope S/1000).\n';
       } else {
         msg += 'ℹ️ Aún no llega a las 6 visitas del ciclo.\n';
       }
@@ -228,7 +255,7 @@
       const amount = parseFloat(redeemAmountInput.value);
 
       if (!qr) {
-        showStatus(redeemStatus, 'Ingresa el QR del cliente.', true);
+        showStatus(redeemStatus, 'Ingresa o escanea el QR del cliente.', true);
         return;
       }
       if (isNaN(amount) || amount <= 0) {
@@ -271,14 +298,14 @@
 
       let msg = `Cliente: ${client_name || 'Sin nombre'}\n`;
       msg += `Monto compra: S/${sale_amount}\n`;
-      msg += `Base descuento: S/${discount_base}\n`;
-      msg += `Descuento aplicado (15%): S/${discount_applied}\n`;
+      msg += `Base descuento (tope S/1000): S/${discount_base}\n`;
+      msg += `Descuento aplicado (10%): S/${discount_applied}\n`;
       msg += `Monto final a cobrar: S/${final_amount}\n\n`;
 
       if (reward_redeemed) {
-        msg += '✅ Premio canjeado correctamente.\n';
+        msg += '✅ Premio canjeado correctamente (10% aplicado).\n';
         if (discount_capped) {
-          msg += '⚠️ El descuento se aplicó solo hasta S/400 (tope de la promo).\n';
+          msg += '⚠️ El descuento se aplicó solo hasta S/1000 (tope de la promo).\n';
         }
       } else {
         msg += 'ℹ️ No se marcó el premio como redimido.\n';
@@ -289,3 +316,4 @@
   </script>
 </body>
 </html>
+
